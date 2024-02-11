@@ -1,0 +1,25 @@
+{
+  "name": "juria",
+  "version": "0.0.2",
+  "description": "An alternative to jQuery.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "dom",
+    "manupulation"
+  ],
+  "scripts": {
+    "build": "tsup ./src/index.ts --format cjs,esm --dts",
+    "lint": "tsc"
+  },
+  "author": "FlareShip",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3"
+  }
+}
