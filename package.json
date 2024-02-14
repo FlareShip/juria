@@ -16,10 +16,10 @@
     "build": "tsup ./src/index.ts --format cjs,esm --dts",
     "lint": "tsc"
   },
-  "author": "FlareShip",
+  "author": "Lalit Singh <lalitsingh.micro+npm@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.11.17",
     "typescript": "^5.3.3"
   }
 }

@@ -2,20 +2,17 @@ type int = number;
 
 type _ReturnType = {
   style: CSSStyleDeclaration;
-  getChild: (childSelector: string) => _ReturnType;
-  getChildByIndex: (index: int) => _ReturnType;
+  getChild: (childSelector: string) => _ReturnType | undefined;
+  getChildByIndex: (index: int) => _ReturnType | undefined;
   addClass: (className: string) => _ReturnType;
   removeClass: (className: string) => _ReturnType | undefined;
-  onClick: (Func: (e: MouseEvent) => any) => _ReturnType;
-  onHover: (Func: (e: Event, element: HTMLElement) => any) => _ReturnType;
+  onClick: (Func: (ev: MouseEvent, element: HTMLElement) => any) => _ReturnType;
+  onHover: (Func: (ev: Event, element: HTMLElement) => any) => _ReturnType;
   onHoverOver: (Func: (ev: Event, element: HTMLElement) => any) => _ReturnType;
 };
 
-
-
-
 /**
- * The function $ is a TypeScript function that returns the first HTMLElement that matches the given
+ * The function `$` is a TypeScript function that returns the first HTMLElement that matches the given
  * selector.
  * @param {any} selector - The `selector` parameter is a string that represents a CSS selector. It is
  * used to select elements from the HTML document.
@@ -26,42 +23,69 @@ export function $(selector: any) {
 }
 
 
+/**
+ * The function `all` is a TypeScript function that returns an array of HTMLElements that match
+ * the given selector.
+ * @param {any} selector - The `selector` parameter is a string that represents a CSS selector. It is
+ * used to select elements from the HTML document.
+ * @returns an array of HTMLElements that match the given selector.
+ */
+$.all = (selector: any) => {
+  return document.querySelectorAll<HTMLElement>(selector)!;
+};
 
 
 /**
- * The function `_` is a helper function that provides a fluent interface for manipulating DOM elements
- * in TypeScript.
- * @param {any} [selector] - The `selector` parameter is an optional parameter that specifies the CSS
- * selector for the element(s) you want to target. If no selector is provided, it defaults to "body",
- * which means it will target the `<body>` element.
- * @returns an object with several properties and methods.
+ * The above function is a utility function in TypeScript that provides a simplified way to interact
+ * with HTML elements by chaining methods for styling, accessing child elements, adding/removing
+ * classes, and attaching event listeners.
+ * @param {string | HTMLElement | undefined} [selector] - The `selector` parameter is optional and can
+ * be a string representing a CSS selector, an HTMLElement, or undefined. If no selector is provided,
+ * then it will point to the `<body>` eleemnt.
  */
-export function _(selector?: any): _ReturnType {
+export function _(selector?: string | HTMLElement | undefined): _ReturnType {
   selector = typeof selector === "undefined" ? "body" : selector;
 
   return {
-    style: $(selector).style,
-
+    style:
+      typeof selector === "string"
+        ? $(selector).style
+        : typeof selector === "object"
+        ? selector.style
+        : $("body").style,
 
     getChild: (childSelector: string) => {
-      return _($(selector).children.namedItem(childSelector));
+      return typeof selector === "string"
+        ? _($(selector).children.namedItem(childSelector) as HTMLElement)
+        : typeof selector === "object"
+        ? _(selector.children.namedItem(childSelector) as HTMLElement)
+        : undefined;
     },
-
 
     getChildByIndex: (index: int) => {
-      return _($(selector).children.item(index));
+      return typeof selector === "string"
+        ? _($(selector).children.item(index) as HTMLElement)
+        : typeof selector === "object"
+        ? _(selector.children.item(index) as HTMLElement)
+        : undefined;
     },
 
-
     addClass: (className: string) => {
-      $(selector).classList.add(className);
+      typeof selector === "string"
+        ? $(selector).classList.add(className)
+        : typeof selector === "object"
+        ? selector.classList.add(className)
+        : Error("Envalid selector");
 
       return _(selector);
     },
 
-
     removeClass: (className: string) => {
-      $(selector).classList.add(className);
+      typeof selector === "string"
+        ? $(selector).classList.remove(className)
+        : typeof selector === "object"
+        ? selector.classList.remove(className)
+        : Error("Envalid selector");
 
       if (selector === className) {
         return;
@@ -70,31 +94,34 @@ export function _(selector?: any): _ReturnType {
       return _(selector);
     },
 
+    onClick: (Func: (ev: MouseEvent, element: HTMLElement) => any) => {
+      let element = typeof selector === "string" ? $(selector) : selector!;
 
-    onClick: (Func: (e: MouseEvent) => any) => {
-      $(selector).addEventListener("click", (e) => Func(e));
+      typeof selector === "string"
+        ? $(selector).addEventListener("click", (ev) => Func(ev, element))
+        : selector!.addEventListener("click", (ev) => Func(ev, element));
 
       return _(selector);
     },
 
+    onHover: (Func: (ev: Event, element: HTMLElement) => any) => {
+      let element = typeof selector === "string" ? $(selector) : selector!;
 
-    onHover: (Func: (e: Event, element: HTMLElement) => any) => {
-      let element = $(selector);
+      typeof selector === "string"
+        ? $(selector).addEventListener("mouseenter", (ev) => Func(ev, element))
+        : selector!.addEventListener("mouseenter", (ev) => Func(ev, element));
 
-      $(selector).addEventListener("mouseenter", (e) => Func(e, element));
-
-      
       return _(selector);
     },
-    
-    
+
     onHoverOver: (Func: (ev: Event, element: HTMLElement) => any) => {
-      let element = $(selector);
+      let element = typeof selector === "string" ? $(selector) : selector!;
 
-      $(selector).addEventListener("mouseleave", (ev) => Func(ev, element));
+      typeof selector === "string"
+        ? $(selector).addEventListener("mouseleave", (ev) => Func(ev, element))
+        : selector!.addEventListener("mouseleave", (ev) => Func(ev, element));
 
       return _(selector);
-    }
+    },
   };
 }
-
